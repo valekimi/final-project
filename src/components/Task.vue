@@ -1,58 +1,3 @@
-#FINAL PROJECT - App - Task Manager + Account authentication
-
-used: Vite / Falseado base dato con Supabase / Router /
-
-Day 1: understand project structure, insert first HTML and CSS in Auth view, creating component sign up and sign in
-Day 2: connecting components with view and add logic, implement the log out funcionality connected with sign in and sign up
-Day 3: created task component and add login to add new task in the To Do list, also fetching existing tasks, adjusted the date/time format
-
-
-
-====
-Task.js until 9 may 17:38
-----
-// /store/task.js
-
-import { defineStore } from 'pinia'
-import { supabase } from '../supabase'
-
-export const useTaskStore = defineStore('tasks', {
-  state: () => ({
-    tasks: null
-  }),
-  actions: {
-    async fetchTasks() {
-      const { data: fetchedTasks, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('id', { ascending: false })
-
-      if (error) {
-        console.error('Error fetching tasks:', error.message)
-        return
-      }
-      this.tasks = fetchedTasks || []
-    },
-    async addTask(newTask) {
-      // Add the new task to the database
-      const { data, error } = await supabase.from('tasks').insert(newTask)
-
-      if (error) {
-        console.error('Error adding new task:', error.message)
-        return
-      }
-    }
-  }
-})
-====
-
-
-
-
-
-====
-Task.vue until 9 may 17:38
-----
 <script setup>
 import { ref, computed } from 'vue'
 import { useTaskStore } from '../stores/task.js'
@@ -317,4 +262,3 @@ button {
   width: 100%;
 }
 </style>
-====
