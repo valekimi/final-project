@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useTaskStore } from '../stores/task.js'
 import { useUserStore } from '../stores/user.js'
 
-const userStore = useUserStore();
+const userStore = useUserStore()
 
 const newTaskTitle = ref('')
 const newTaskDescription = ref('')
@@ -19,23 +19,63 @@ const handleSubmit = async () => {
   // Clear input fields after adding task
   newTaskTitle.value = ''
   newTaskDescription.value = ''
-  taskStore.fetchTasks();
+  taskStore.fetchTasks()
 }
 
-taskStore.fetchTasks();
+taskStore.fetchTasks()
 
 // Computed property to format timestamp to HH:MM
 const formattedTimestamp = computed(() => {
-  const tasks = taskStore.tasks || []; // Ensure tasks is an array
+  const tasks = taskStore.tasks || [] // Ensure tasks is an array
 
-  return tasks.map(task => {
-    const dateObj = new Date(task.inserted_at); // Parse the timestamp string into a Date object
-    const formattedDate = dateObj.toLocaleDateString(); // Format the date
-    const formattedTime = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); // Format the time as HH:MM
-    return `${formattedDate} ${formattedTime}`; // Combine date and time
-  });
-});
+  return tasks.map((task) => {
+    const dateObj = new Date(task.inserted_at) // Parse the timestamp string into a Date object
+    const formattedDate = dateObj.toLocaleDateString() // Format the date
+    const formattedTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format the time as HH:MM
+    return `${formattedDate} ${formattedTime}` // Combine date and time
+  })
+})
 
+const deleteTask = async (task) => {
+  const confirmed = confirm('Are you sure you want to delete this task?')
+  if (confirmed) {
+    await taskStore.deleteTask(task)
+    taskStore.fetchTasks() // Refresh the task list after deletion
+  }
+}
+
+const markComplete = async (task) => {
+  task.is_complete = true // Update the task's status
+  await taskStore.updateTask(task) // Update the task in the store and the database
+  taskStore.fetchTasks() // Refresh the task list after updating
+}
+
+const backToTodo = async (task) => {
+  task.is_complete = false // Update the task's status
+  await taskStore.updateTask(task) // Update the task in the store and the database
+  taskStore.fetchTasks() // Refresh the task list after updating
+}
+
+const toggleEditMode = (task) => {
+  task.editMode = !task.editMode
+  // Set the updated title and description to the current title and description
+  if (task.editMode) {
+    task.updatedTitle = task.title
+    task.updatedDescription = task.description
+  }
+}
+
+const saveChanges = async (task) => {
+  task.title = task.updatedTitle // Update the task title
+  task.description = task.updatedDescription // Update the task description
+  task.editMode = false // Exit edit mode
+  await taskStore.updateTask(task) // Update the task in the store and the database
+  taskStore.fetchTasks() // Refresh the task list after updating
+}
+
+const cancelEdit = (task) => {
+  task.editMode = false // Exit edit mode without saving
+}
 </script>
 
 <template>
@@ -73,17 +113,28 @@ const formattedTimestamp = computed(() => {
             :key="task.id"
             class="task-card"
           >
-            <div class="card-info">
+            <div v-if="!task.editMode" class="card-info">
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
               <p class="timestamp">{{ formattedTimestamp[index] }}</p>
             </div>
-            <div class="card-options">
+
+            <div v-else class="edit-inputs">
+              <input v-model="task.updatedTitle" />
+              <textarea v-model="task.updatedDescription" rows="4"></textarea>
+            </div>
+
+            <div v-if="!task.editMode" class="card-options">
               <div>
-                <button @click="editTask(task)">✏️ Edit</button>
+                <button @click="toggleEditMode(task)">✏️ Edit</button>
                 <button @click="deleteTask(task)">🗑️ Delete</button>
               </div>
               <button @click="markComplete(task)">Mark Complete</button>
+            </div>
+
+            <div v-else class="cancel-save">
+              <button @click="cancelEdit(task)" class="cancel">Cancel</button>
+              <button @click="saveChanges(task)" class="save">Save</button>
             </div>
           </div>
         </div>
@@ -95,19 +146,30 @@ const formattedTimestamp = computed(() => {
           <div
             v-for="(task, index) in taskStore.tasks.filter((task) => task.is_complete)"
             :key="task.id"
-            class="task-card"
+            class="task-card-done"
           >
-            <div class="card-info">
+            <div v-if="!task.editMode" class="card-info">
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
               <p class="timestamp">{{ formattedTimestamp[index] }}</p>
             </div>
-            <div class="card-options">
+
+            <div v-else class="edit-inputs">
+              <input v-model="task.updatedTitle" />
+              <textarea v-model="task.updatedDescription" rows="4"></textarea>
+            </div>
+
+            <div v-if="!task.editMode" class="card-options">
               <div>
-                <button @click="editTask(task)">✏️ Edit</button>
+                <button @click="toggleEditMode(task)">✏️ Edit</button>
                 <button @click="deleteTask(task)">🗑️ Delete</button>
               </div>
               <button @click="backToTodo(task)">Back To Do</button>
+            </div>
+
+            <div v-else class="cancel-save">
+              <button @click="cancelEdit(task)" class="cancel">Cancel</button>
+              <button @click="saveChanges(task)" class="save">Save</button>
             </div>
           </div>
         </div>
@@ -160,6 +222,16 @@ form textarea {
 
 .task-card {
   background-color: #f4f6fc;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.task-card-done {
+  background-color: #ecfff5;
   border: none;
   border-radius: 8px;
   padding: 16px;
@@ -236,7 +308,7 @@ button {
 
 .timestamp {
   font-size: 12px;
-  color: #BCBCBC;
+  color: #bcbcbc;
 }
 
 .card-options {
@@ -246,7 +318,7 @@ button {
   gap: 8px;
 }
 
-.card-options button {
+.card-options button, .cancel {
   border: 1px solid #d1edff;
   border-radius: 4px;
   background-color: #ffffff;
@@ -255,7 +327,26 @@ button {
   height: 30px;
 }
 
-.card-options div {
+.save {
+  font-size: 12px;
+  height: 30px;
+  border: 1px solid #ffffff;
+}
+
+.edit-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-inputs input, .edit-inputs textarea {
+  background-color: #ffffff;
+  border: 1px solid #d1edff;
+  font-family:'Raleway';
+  color: #514d67;
+}
+
+.card-options div, .cancel-save {
   display: flex;
   flex-direction: row;
   gap: 8px;
