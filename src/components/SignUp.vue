@@ -1,21 +1,34 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user.js'
+import SuccessPopup from './SuccessPopup.vue'
 
 const router = useRouter()
-
-// bring in the Store
-import { useUserStore } from '../stores/user.js'
 const userStore = useUserStore()
-
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const showEmailError = ref(false)
+const showSuccessPopup = ref(false)
 
-function signUp(email, password, confirmPassword) {
-  if (password === confirmPassword) userStore.signUp(email, password)
-  else console.error('Please try again, the password does not match')
+async function handleSignUp() {
+  if (password.value === confirmPassword.value) { // Compare the values of the refs
+    try {
+      const { data, error } = await userStore.signUp(email, password)
+      if (error) {
+        showEmailError.value = true
+      } else if (data) {
+        showSuccessPopup.value = true
+      }
+    } catch (error) {
+      console.error('Error: ', error)
+    }
+  } else {
+    console.error('Please try again, the password does not match')
+  }
 }
+
 </script>
 
 <template>
@@ -23,7 +36,7 @@ function signUp(email, password, confirmPassword) {
     <div class="header">
       <h2>Sign Up</h2>
     </div>
-    <form @submit.prevent="userStore.signUp(email, password, confirmPassword)">
+    <form @submit.prevent="handleSignUp">
       <div class="email">
         <label for="email">Email</label>
         <input
@@ -47,18 +60,25 @@ function signUp(email, password, confirmPassword) {
         />
       </div>
       <div class="password">
-        <label for="password">Confirm password</label>
+        <label for="confirmPassword">Confirm password</label>
         <input
-          v-model="password"
+          v-model="confirmPassword"
           type="password"
           id="confirmPassword"
-          name="password"
-          placeholder="Enter your password"
+          name="confirmPassword"
+          placeholder="Confirm your password"
           required
         />
       </div>
       <button type="submit">Sign Up</button>
     </form>
+
+    <SuccessPopup :show="showSuccessPopup" @close="showSuccessPopup = false" />
+    <div v-if="showEmailError" class="popup">
+      <p>This email is already registered. Please try again with another email.</p>
+      <button @click="showEmailError = false">Close</button>
+    </div>
+
   </div>
 </template>
 

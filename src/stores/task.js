@@ -9,10 +9,11 @@ export const useTaskStore = defineStore('tasks', {
   }),
 
   actions: {
-    async fetchTasks() {
+    async fetchTasks(userId) {
       const { data: fetchedTasks, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('user_id', userId) // Filter tasks based on user_id
         .order('id', { ascending: false })
 
       if (error) {
@@ -21,7 +22,10 @@ export const useTaskStore = defineStore('tasks', {
       }
       this.tasks = fetchedTasks || []
     },
+
     async addTask(newTask) {
+      // Associate the task with the current user's user_id
+      newTask.user_id = userStore.user.id
       // Add the new task to the database
       const { data, error } = await supabase.from('tasks').insert(newTask)
 
@@ -30,6 +34,7 @@ export const useTaskStore = defineStore('tasks', {
         return
       }
     },
+
     async deleteTask(task) {
       const { error } = await supabase.from('tasks').delete().eq('id', task.id)
 
@@ -45,10 +50,10 @@ export const useTaskStore = defineStore('tasks', {
           description: task.description,
           is_complete: task.is_complete
         })
-        .eq('id', task.id);
+        .eq('id', task.id)
 
       if (error) {
-        console.error('Error updating the task:', error.message);
+        console.error('Error updating the task:', error.message)
       }
     }
   }

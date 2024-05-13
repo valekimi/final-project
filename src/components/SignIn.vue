@@ -1,19 +1,19 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user.js'
 
-const router = useRouter();
+const router = useRouter()
+const userStore = useUserStore()
+const email = ref('')
+const password = ref('')
 
-// bring in the Store
-import { useUserStore } from '../stores/user.js';
-const userStore = useUserStore();
-
-const email = ref("");
-const password = ref("");
-
-async function signIn(email, password) {
-    const isUser = await userStore.signIn (email, password)
-    if (isUser) router.push({ path: '/'})
+async function signIn() {
+  const isUser = await userStore.signIn(email.value, password.value)
+  if (isUser) {
+    // Handle successful sign-in, maybe show a message or redirect
+    router.push('/')
+  }
 }
 
 </script>
@@ -23,7 +23,7 @@ async function signIn(email, password) {
     <div class="header">
       <h2>Sign In</h2>
     </div>
-    <form @submit.prevent="signIn(email, password)">
+    <form @submit.prevent="signIn">
       <div class="email">
         <label for="email">Email</label>
         <input

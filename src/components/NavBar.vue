@@ -6,7 +6,7 @@ const userStore = useUserStore()
 <template>
   <section>
     <header>
-      <div><h3>Task Your Tasks</h3></div>
+      <div><h3>Task-it</h3></div>
       <ul>
         <li><a href="">Home</a></li>
         <li><a href="">Tasks</a></li>
@@ -26,16 +26,22 @@ header {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 100px;
+  padding: 0px 100px;
   background-color: #072ac8;
   color: #ffffff;
+}
+
+h3 {
+  margin: none;
 }
 
 ul {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   gap: 40px;
   list-style: none;
+  margin: none;
 }
 
 a {
@@ -57,9 +63,9 @@ button {
   border-radius: 4px;
   background-color: #ffffff;
   color: #072ac8;
-  font-weight: 500;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 14px;
   padding: 0px 16px;
-  height: 48px;
+  height: 30px;
 }
 </style>

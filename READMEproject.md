@@ -10,10 +10,12 @@ Day 3: created task component and add login to add new task in the To Do list, a
 
 Day 4: added option to delete, mark as complete, edit, save the edit - a task
 
+Day 5: fixed issue with password and confirming password. Add alert if user already signed up with that email - tried to assigned own user tasks but failed
+
 
 
 ====
-Task.js until 10 may 14:51 - delete , mark complete, back todo card, edit, save edit - funcionality
+Task.js  13 May when it was still working
 ----
 // /store/task.js
 
@@ -77,7 +79,7 @@ export const useTaskStore = defineStore('tasks', {
 
 
 ====
-Task.vue until 10 may 14:51 - delete , mark complete, back todo card, edit, save edit - funcionality
+Task.vue until  13 May when it was still working
 ----
 <script setup>
 import { ref, computed } from 'vue'
@@ -434,4 +436,302 @@ button {
   width: 100%;
 }
 </style>
+====
+
+
+
+SignUp.vue: 13 May when it was still working
+====
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// bring in the Store
+import { useUserStore } from '../stores/user.js'
+const userStore = useUserStore()
+
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+
+function signUp(email, password, confirmPassword) {
+  if (password === confirmPassword) userStore.signUp(email, password)
+  else console.error('Please try again, the password does not match')
+}
+</script>
+
+<template>
+  <div class="container">
+    <div class="header">
+      <h2>Sign Up</h2>
+    </div>
+    <form @submit.prevent="userStore.signUp(email, password, confirmPassword)">
+      <div class="email">
+        <label for="email">Email</label>
+        <input
+          v-model="email"
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email address"
+          required
+        />
+      </div>
+      <div class="password">
+        <label for="password">Password</label>
+        <input
+          v-model="password"
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+      <div class="password">
+        <label for="password">Confirm password</label>
+        <input
+          v-model="password"
+          type="password"
+          id="confirmPassword"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+</template>
+
+<style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  color: #072ac8;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 342px;
+}
+
+.email,
+.password {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  width: 100%;
+}
+
+input {
+  border: none;
+  border-radius: 4px;
+  background-color: #f4f6fc;
+  padding: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 4px;
+  background-color: #072ac8;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 16px;
+  width: 100%;
+  height: 48px;
+}
+</style>
+====
+
+
+SignIn.vue:  13 May when it was still working
+====
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router'
+
+const router = useRouter();
+
+// bring in the Store
+import { useUserStore } from '../stores/user.js';
+const userStore = useUserStore();
+
+const email = ref("");
+const password = ref("");
+
+async function signIn(email, password) {
+    const isUser = await userStore.signIn (email, password)
+    if (isUser) router.push({ path: '/'})
+}
+
+</script>
+
+<template>
+  <div class="container">
+    <div class="header">
+      <h2>Sign In</h2>
+    </div>
+    <form @submit.prevent="signIn(email, password)">
+      <div class="email">
+        <label for="email">Email</label>
+        <input
+          v-model="email"
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email address"
+          required
+        />
+      </div>
+      <div class="password">
+        <label for="password">Password</label>
+        <input
+          v-model="password"
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+        <a href="">Forgot Password?</a>
+      </div>
+      <button type="submit">Sign In</button>
+    </form>
+  </div>
+</template>
+
+<style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  color: #072ac8;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 342px;
+}
+
+.email,
+.password {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  width: 100%;
+}
+
+input {
+  border: none;
+  border-radius: 4px;
+  background-color: #f4f6fc;
+  padding: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 4px;
+  background-color: #072ac8;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 16px;
+  width: 100%;
+  height: 48px;
+}
+
+a {
+    margin: 8px 0px;
+}
+</style>
+
+====
+
+
+User.js :  13 May when it was still working
+====
+// /store/user.js
+import { defineStore } from 'pinia'
+import { supabase } from '../supabase.js'
+import router from '@/router'
+
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    user: null
+  }),
+
+  actions: {
+    async fetchUser() {
+      const { data } = await supabase.auth.getUser()
+      this.user = data.user
+    },
+    async signUp(email, password) {
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password
+      })
+      if (error) throw error
+      if (data) this.user = data.user
+    },
+    async signIn(email, password) {
+      const { user, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      })
+      if (error) throw error
+      if (user) this.user = user
+      router.push('/')
+    },
+    async logOut() {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Log out error:', error.message)
+      } else {
+        // Qui puoi reindirizzare l'utente o fare altre pulizie post-logout
+        console.log('Logout Sucessful')
+        router.push('/auth')
+      }
+    },
+    persist: {
+      enabled: true,
+      strategies: [
+        {
+          key: 'user',
+          storage: localStorage
+        }
+      ]
+    }
+  }
+})
 ====

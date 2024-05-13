@@ -4,7 +4,7 @@
   <section>
     <img src="../assets/CoverTasks.jpg" alt="CoverApp" />
     <div class="welcome">
-      <h1>Task Your Tasks</h1>
+      <h1>Task-it</h1>
       <p>Add, edit, delete, all the tasks you need</p>
     </div>
   </section>
@@ -20,6 +20,7 @@ section {
 .welcome {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 img {

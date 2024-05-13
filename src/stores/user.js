@@ -13,14 +13,22 @@ export const useUserStore = defineStore('user', {
       const { data } = await supabase.auth.getUser()
       this.user = data.user
     },
+
     async signUp(email, password) {
       const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password
       })
-      if (error) throw error
-      if (data) this.user = data.user
+      if (error) {
+        alert("This account already exist")
+        throw error
+      }
+      if (data) {
+        this.user = data.user
+      }
+      return { data, error } // Return the data and error for checking in the component
     },
+
     async signIn(email, password) {
       const { user, error } = await supabase.auth.signInWithPassword({
         email: email,
@@ -30,6 +38,7 @@ export const useUserStore = defineStore('user', {
       if (user) this.user = user
       router.push('/')
     },
+
     async logOut() {
       const { error } = await supabase.auth.signOut()
       if (error) {
@@ -40,6 +49,7 @@ export const useUserStore = defineStore('user', {
         router.push('/auth')
       }
     },
+
     persist: {
       enabled: true,
       strategies: [
@@ -49,5 +59,10 @@ export const useUserStore = defineStore('user', {
         }
       ]
     }
+  },
+
+  // Initialize the store
+  init() {
+    this.persist.enabled = true
   }
 })

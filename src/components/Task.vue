@@ -2,12 +2,16 @@
 import { ref, computed } from 'vue'
 import { useTaskStore } from '../stores/task.js'
 import { useUserStore } from '../stores/user.js'
+import { onBeforeMount } from 'vue'
 
 const userStore = useUserStore()
-
+const taskStore = useTaskStore()
 const newTaskTitle = ref('')
 const newTaskDescription = ref('')
-const taskStore = useTaskStore()
+
+onBeforeMount(() => {
+  taskStore.fetchTasks(userStore.user.id)
+})
 
 const handleSubmit = async () => {
   const newTask = {
@@ -19,10 +23,14 @@ const handleSubmit = async () => {
   // Clear input fields after adding task
   newTaskTitle.value = ''
   newTaskDescription.value = ''
-  taskStore.fetchTasks()
+  await taskStore.fetchTasks(userStore.user.id) // Use await to make sure fetchTasks is completed before proceeding
 }
 
-taskStore.fetchTasks()
+const filteredTasks = computed(() => {
+  const tasks = taskStore.tasks || [] // Ensure tasks is defined
+  const userId = userStore.user.id
+  return tasks.filter((task) => task.user_id === userId)
+})
 
 // Computed property to format timestamp to HH:MM
 const formattedTimestamp = computed(() => {
@@ -109,7 +117,7 @@ const cancelEdit = (task) => {
         <h3>To do</h3>
         <div v-if="taskStore.tasks" class="card-list">
           <div
-            v-for="(task, index) in taskStore.tasks.filter((task) => !task.is_complete)"
+            v-for="(task, index) in filteredTasks.filter((task) => !task.is_complete)"
             :key="task.id"
             class="task-card"
           >
@@ -144,7 +152,7 @@ const cancelEdit = (task) => {
         <h3>Completed</h3>
         <div v-if="taskStore.tasks" class="card-list">
           <div
-            v-for="(task, index) in taskStore.tasks.filter((task) => task.is_complete)"
+            v-for="(task, index) in filteredTasks.filter((task) => task.is_complete)"
             :key="task.id"
             class="task-card-done"
           >
@@ -318,7 +326,8 @@ button {
   gap: 8px;
 }
 
-.card-options button, .cancel {
+.card-options button,
+.cancel {
   border: 1px solid #d1edff;
   border-radius: 4px;
   background-color: #ffffff;
@@ -339,14 +348,16 @@ button {
   gap: 8px;
 }
 
-.edit-inputs input, .edit-inputs textarea {
+.edit-inputs input,
+.edit-inputs textarea {
   background-color: #ffffff;
   border: 1px solid #d1edff;
-  font-family:'Raleway';
+  font-family: 'Raleway';
   color: #514d67;
 }
 
-.card-options div, .cancel-save {
+.card-options div,
+.cancel-save {
   display: flex;
   flex-direction: row;
   gap: 8px;
