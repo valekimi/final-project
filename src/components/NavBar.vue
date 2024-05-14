@@ -1,19 +1,21 @@
 <script setup>
+import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user.js'
+
+const router = useRouter()
 const userStore = useUserStore()
+
 </script>
 
 <template>
   <section>
     <header>
-      <div><h3>Task-it</h3></div>
-      <ul>
-        <li><a href="">Home</a></li>
-        <li><a href="">Tasks</a></li>
-        <li><a href="">Timer</a></li>
-      </ul>
-      <div class="logout">
-        <p><i>You are logged!</i></p>
+      <div class="task"><img src="/src/assets/121Team.png" alt=""><h3><router-link to="/">Task-it</router-link></h3></div>
+      <div class="log">
+        <div class="profile" >
+          <div class="img"></div>
+          <router-link to="/profile"><p>Profile</p></router-link>
+        </div>
         <button @click="userStore.logOut">Log Out</button>
       </div>
     </header>
@@ -21,27 +23,39 @@ const userStore = useUserStore()
 </template>
 
 <style scoped>
+section {
+  margin: 0;
+}
+
 header {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0px 100px;
+  padding: 0px 24px;
   background-color: #072ac8;
   color: #ffffff;
 }
 
-h3 {
-  margin: none;
-}
-
-ul {
+.task {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  gap: 40px;
-  list-style: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.task img {
+  width: 40px;
+  height: 40px;
+}
+
+h3 {
   margin: none;
+  font-size: 600;
+}
+
+h3 :hover {
+  color:lightcyan;
 }
 
 a {
@@ -51,7 +65,23 @@ a {
   color: #ffffff;
 }
 
-.logout {
+.profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.img {
+  width: 48px;
+  height: 48px;
+  background-image: url(/src/assets/beanhead\ 3.svg);
+}
+
+.profile p {
+  font-size: 14px;
+}
+
+.log {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -61,11 +91,12 @@ a {
 button {
   border: none;
   border-radius: 4px;
-  background-color: #ffffff;
-  color: #072ac8;
+  background-color: #536cea;
+  color: #ffffff;
   font-weight: 600;
   font-size: 14px;
   padding: 0px 16px;
   height: 30px;
 }
+
 </style>

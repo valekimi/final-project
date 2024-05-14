@@ -2,16 +2,20 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user.js'
+import { useTaskStore } from '@/stores/task.js';
 
 const router = useRouter()
 const userStore = useUserStore()
+const taskStore = useTaskStore();
 const email = ref('')
 const password = ref('')
 
 async function signIn() {
-  const isUser = await userStore.signIn(email.value, password.value)
-  if (isUser) {
+  await userStore.signIn(email.value, password.value)
+  if (userStore.user) {
+    console.log(userStore.user.id);
     // Handle successful sign-in, maybe show a message or redirect
+    await taskStore.fetchTasks(userStore.user.id);
     router.push('/')
   }
 }

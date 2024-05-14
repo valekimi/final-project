@@ -2,7 +2,7 @@
 
 <template>
   <section>
-    <img src="../assets/CoverTasks.jpg" alt="CoverApp" />
+    <img src="../assets/121Team.png" alt="CoverApp" />
     <div class="welcome">
       <h1>Task-it</h1>
       <p>Add, edit, delete, all the tasks you need</p>

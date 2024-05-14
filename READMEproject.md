@@ -12,15 +12,117 @@ Day 4: added option to delete, mark as complete, edit, save the edit - a task
 
 Day 5: fixed issue with password and confirming password. Add alert if user already signed up with that email - tried to assigned own user tasks but failed
 
+Day 6: fixed issue to assign task per user, also fixed issue delete card after refresh
 
 
 ====
-Task.js  13 May when it was still working
+NavBar.vue
+----
+<script setup>
+import { useUserStore } from '../stores/user.js'
+const userStore = useUserStore()
+</script>
+
+<template>
+  <section>
+    <header>
+      <div><h3>Task-it</h3></div>
+      <!--
+      <ul>
+        <li><a href="">Home</a></li>
+        <li><a href="">Tasks</a></li>
+        <li><a href="">Timer</a></li>
+      </ul>
+      -->
+      <div class="log">
+        <div class="profile">
+          <div class="img"></div>
+          <p>Profile</p>
+        </div>
+        <button @click="userStore.logOut">Log Out</button>
+      </div>
+    </header>
+  </section>
+</template>
+
+<style scoped>
+section {
+  margin: 0;
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 24px;
+  background-color: #072ac8;
+  color: #ffffff;
+}
+
+h3 {
+  margin: none;
+}
+
+/*
+ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 40px;
+  list-style: none;
+  margin: none;
+}
+*/
+
+a {
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.img {
+  width: 48px;
+  height: 48px;
+  background-image: url(/src/assets/beanhead\ 3.svg);
+}
+
+.log {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 4px;
+  background-color: #536cea;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 0px 16px;
+  height: 30px;
+}
+</style>
+====
+
+
+====
+Task.js  14 May - Add task, edit, delete, merk complete, assigned task per user
 ----
 // /store/task.js
 
 import { defineStore } from 'pinia'
 import { supabase } from '../supabase'
+import { useUserStore } from './user'
 
 export const useTaskStore = defineStore('tasks', {
   state: () => ({
@@ -28,10 +130,11 @@ export const useTaskStore = defineStore('tasks', {
   }),
 
   actions: {
-    async fetchTasks() {
+    async fetchTasks(userId) {
       const { data: fetchedTasks, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('user_id', userId) // Filter tasks based on user_id
         .order('id', { ascending: false })
 
       if (error) {
@@ -40,7 +143,10 @@ export const useTaskStore = defineStore('tasks', {
       }
       this.tasks = fetchedTasks || []
     },
+
     async addTask(newTask) {
+      // Associate the task with the current user's user_id
+      newTask.user_id = useUserStore().user.id
       // Add the new task to the database
       const { data, error } = await supabase.from('tasks').insert(newTask)
 
@@ -49,6 +155,7 @@ export const useTaskStore = defineStore('tasks', {
         return
       }
     },
+
     async deleteTask(task) {
       const { error } = await supabase.from('tasks').delete().eq('id', task.id)
 
@@ -56,6 +163,7 @@ export const useTaskStore = defineStore('tasks', {
         console.error('Error deleting the task:', error.message)
       }
     },
+    
     async updateTask(task) {
       const { data, error } = await supabase
         .from('tasks')
@@ -64,10 +172,10 @@ export const useTaskStore = defineStore('tasks', {
           description: task.description,
           is_complete: task.is_complete
         })
-        .eq('id', task.id);
+        .eq('id', task.id)
 
       if (error) {
-        console.error('Error updating the task:', error.message);
+        console.error('Error updating the task:', error.message)
       }
     }
   }
@@ -76,10 +184,8 @@ export const useTaskStore = defineStore('tasks', {
 
 
 
-
-
 ====
-Task.vue until  13 May when it was still working
+Task.vue  14 May - Add task, edit, delete, merk complete, assigned task per user
 ----
 <script setup>
 import { ref, computed } from 'vue'
@@ -87,10 +193,10 @@ import { useTaskStore } from '../stores/task.js'
 import { useUserStore } from '../stores/user.js'
 
 const userStore = useUserStore()
-
+const taskStore = useTaskStore()
 const newTaskTitle = ref('')
 const newTaskDescription = ref('')
-const taskStore = useTaskStore()
+
 
 const handleSubmit = async () => {
   const newTask = {
@@ -102,10 +208,14 @@ const handleSubmit = async () => {
   // Clear input fields after adding task
   newTaskTitle.value = ''
   newTaskDescription.value = ''
-  taskStore.fetchTasks()
+  await taskStore.fetchTasks(userStore.user.id) // Use await to make sure fetchTasks is completed before proceeding
 }
 
-taskStore.fetchTasks()
+const filteredTasks = computed(() => {
+  const tasks = taskStore.tasks || [] // Ensure tasks is defined
+  const userId = userStore.user.id
+  return tasks.filter((task) => task.user_id === userId)
+})
 
 // Computed property to format timestamp to HH:MM
 const formattedTimestamp = computed(() => {
@@ -123,7 +233,7 @@ const deleteTask = async (task) => {
   const confirmed = confirm('Are you sure you want to delete this task?')
   if (confirmed) {
     await taskStore.deleteTask(task)
-    taskStore.fetchTasks() // Refresh the task list after deletion
+    await taskStore.fetchTasks(userStore.user.id) // Wait for fetchTasks to complete
   }
 }
 
@@ -165,7 +275,7 @@ const cancelEdit = (task) => {
   <section>
     <div class="create-task">
       <div class="header">
-        <h2>Add a new Task</h2>
+        <h2>Add a Task</h2>
         <div>
           <p>Keep your life organized!</p>
           <p>Create tasks which will help you to get things done.</p>
@@ -192,7 +302,7 @@ const cancelEdit = (task) => {
         <h3>To do</h3>
         <div v-if="taskStore.tasks" class="card-list">
           <div
-            v-for="(task, index) in taskStore.tasks.filter((task) => !task.is_complete)"
+            v-for="(task, index) in filteredTasks.filter((task) => !task.is_complete)"
             :key="task.id"
             class="task-card"
           >
@@ -227,7 +337,7 @@ const cancelEdit = (task) => {
         <h3>Completed</h3>
         <div v-if="taskStore.tasks" class="card-list">
           <div
-            v-for="(task, index) in taskStore.tasks.filter((task) => task.is_complete)"
+            v-for="(task, index) in filteredTasks.filter((task) => task.is_complete)"
             :key="task.id"
             class="task-card-done"
           >
@@ -401,7 +511,8 @@ button {
   gap: 8px;
 }
 
-.card-options button, .cancel {
+.card-options button,
+.cancel {
   border: 1px solid #d1edff;
   border-radius: 4px;
   background-color: #ffffff;
@@ -422,14 +533,16 @@ button {
   gap: 8px;
 }
 
-.edit-inputs input, .edit-inputs textarea {
+.edit-inputs input,
+.edit-inputs textarea {
   background-color: #ffffff;
   border: 1px solid #d1edff;
-  font-family:'Raleway';
+  font-family: 'Raleway';
   color: #514d67;
 }
 
-.card-options div, .cancel-save {
+.card-options div,
+.cancel-save {
   display: flex;
   flex-direction: row;
   gap: 8px;
@@ -440,26 +553,38 @@ button {
 
 
 
-SignUp.vue: 13 May when it was still working
+SignUp.vue  14 May - Add task, edit, delete, merk complete, assigned task per user
 ====
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user.js'
 
 const router = useRouter()
-
-// bring in the Store
-import { useUserStore } from '../stores/user.js'
 const userStore = useUserStore()
-
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const showEmailError = ref(false)
+const showSuccessPopup = ref(false)
 
-function signUp(email, password, confirmPassword) {
-  if (password === confirmPassword) userStore.signUp(email, password)
-  else console.error('Please try again, the password does not match')
+async function handleSignUp() {
+  if (password.value === confirmPassword.value) { // Compare the values of the refs
+    try {
+      const { data, error } = await userStore.signUp(email, password)
+      if (error) {
+        showEmailError.value = true
+      } else if (data) {
+        showSuccessPopup.value = true
+      }
+    } catch (error) {
+      console.error('Error: ', error)
+    }
+  } else {
+    console.error('Please try again, the password does not match')
+  }
 }
+
 </script>
 
 <template>
@@ -467,7 +592,7 @@ function signUp(email, password, confirmPassword) {
     <div class="header">
       <h2>Sign Up</h2>
     </div>
-    <form @submit.prevent="userStore.signUp(email, password, confirmPassword)">
+    <form @submit.prevent="handleSignUp">
       <div class="email">
         <label for="email">Email</label>
         <input
@@ -491,13 +616,13 @@ function signUp(email, password, confirmPassword) {
         />
       </div>
       <div class="password">
-        <label for="password">Confirm password</label>
+        <label for="confirmPassword">Confirm password</label>
         <input
-          v-model="password"
+          v-model="confirmPassword"
           type="password"
           id="confirmPassword"
-          name="password"
-          placeholder="Enter your password"
+          name="confirmPassword"
+          placeholder="Confirm your password"
           required
         />
       </div>
@@ -562,24 +687,28 @@ button {
 ====
 
 
-SignIn.vue:  13 May when it was still working
+SignIn.vue  14 May - Add task, edit, delete, merk complete, assigned task per user
 ====
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user.js'
+import { useTaskStore } from '@/stores/task.js';
 
-const router = useRouter();
+const router = useRouter()
+const userStore = useUserStore()
+const taskStore = useTaskStore();
+const email = ref('')
+const password = ref('')
 
-// bring in the Store
-import { useUserStore } from '../stores/user.js';
-const userStore = useUserStore();
-
-const email = ref("");
-const password = ref("");
-
-async function signIn(email, password) {
-    const isUser = await userStore.signIn (email, password)
-    if (isUser) router.push({ path: '/'})
+async function signIn() {
+  await userStore.signIn(email.value, password.value)
+  if (userStore.user) {
+    console.log(userStore.user.id);
+    // Handle successful sign-in, maybe show a message or redirect
+    await taskStore.fetchTasks(userStore.user.id);
+    router.push('/')
+  }
 }
 
 </script>
@@ -589,7 +718,7 @@ async function signIn(email, password) {
     <div class="header">
       <h2>Sign In</h2>
     </div>
-    <form @submit.prevent="signIn(email, password)">
+    <form @submit.prevent="signIn">
       <div class="email">
         <label for="email">Email</label>
         <input
@@ -675,11 +804,10 @@ a {
     margin: 8px 0px;
 }
 </style>
-
 ====
 
 
-User.js :  13 May when it was still working
+User.js  14 May - Add task, edit, delete, merk complete, assigned task per user
 ====
 // /store/user.js
 import { defineStore } from 'pinia'
@@ -696,23 +824,31 @@ export const useUserStore = defineStore('user', {
       const { data } = await supabase.auth.getUser()
       this.user = data.user
     },
+
     async signUp(email, password) {
       const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password
       })
-      if (error) throw error
-      if (data) this.user = data.user
+      if (error) {
+        alert("This account already exist")
+        throw error
+      }
+      if (data) {
+        this.user = data.user
+      }
+      return { data, error } // Return the data and error for checking in the component
     },
+
     async signIn(email, password) {
-      const { user, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password
       })
       if (error) throw error
-      if (user) this.user = user
-      router.push('/')
+      this.user = data.user
     },
+
     async logOut() {
       const { error } = await supabase.auth.signOut()
       if (error) {
@@ -720,9 +856,11 @@ export const useUserStore = defineStore('user', {
       } else {
         // Qui puoi reindirizzare l'utente o fare altre pulizie post-logout
         console.log('Logout Sucessful')
+        this.user = null;
         router.push('/auth')
       }
     },
+
     persist: {
       enabled: true,
       strategies: [
@@ -732,6 +870,53 @@ export const useUserStore = defineStore('user', {
         }
       ]
     }
+  },
+
+  // Initialize the store
+  init() {
+    this.persist.enabled = true
   }
 })
+====
+
+App.vue  14 May - Add task, edit, delete, merk complete, assigned task per user
+====
+<script setup>
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+import { useUserStore } from './stores/user.js'
+import { useTaskStore } from './stores/task.js'
+
+const router = useRouter()
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
+const taskStore = useTaskStore()
+// const { task } = storeToRefs(taskStore)
+
+onMounted(async () => {
+  try {
+    await userStore.fetchUser() // here we call fetch user
+    // console.log(user.value);
+    if (!user.value) {
+      // redirect them to logout if the user is not there
+      router.push({ path: '/auth' })
+    } else {
+      // continue to dashboard
+      await taskStore.fetchTasks(user.value.id)
+      router.push({ path: '/' })
+    }
+  } catch (e) {
+    console.log(e)
+  }
+})
+</script>
+
+<template>
+  <section>
+    <router-view />
+    <!-- your routes will load inside of these tags -->
+  </section>
+</template>
+
 ====

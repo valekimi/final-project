@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user.js'
-import SuccessPopup from './SuccessPopup.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -72,13 +71,6 @@ async function handleSignUp() {
       </div>
       <button type="submit">Sign Up</button>
     </form>
-
-    <SuccessPopup :show="showSuccessPopup" @close="showSuccessPopup = false" />
-    <div v-if="showEmailError" class="popup">
-      <p>This email is already registered. Please try again with another email.</p>
-      <button @click="showEmailError = false">Close</button>
-    </div>
-
   </div>
 </template>
 

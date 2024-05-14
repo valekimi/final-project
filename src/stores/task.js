@@ -2,6 +2,7 @@
 
 import { defineStore } from 'pinia'
 import { supabase } from '../supabase'
+import { useUserStore } from './user'
 
 export const useTaskStore = defineStore('tasks', {
   state: () => ({
@@ -25,7 +26,7 @@ export const useTaskStore = defineStore('tasks', {
 
     async addTask(newTask) {
       // Associate the task with the current user's user_id
-      newTask.user_id = userStore.user.id
+      newTask.user_id = useUserStore().user.id
       // Add the new task to the database
       const { data, error } = await supabase.from('tasks').insert(newTask)
 
@@ -42,6 +43,7 @@ export const useTaskStore = defineStore('tasks', {
         console.error('Error deleting the task:', error.message)
       }
     },
+    
     async updateTask(task) {
       const { data, error } = await supabase
         .from('tasks')

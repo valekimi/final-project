@@ -2,16 +2,11 @@
 import { ref, computed } from 'vue'
 import { useTaskStore } from '../stores/task.js'
 import { useUserStore } from '../stores/user.js'
-import { onBeforeMount } from 'vue'
 
 const userStore = useUserStore()
 const taskStore = useTaskStore()
 const newTaskTitle = ref('')
 const newTaskDescription = ref('')
-
-onBeforeMount(() => {
-  taskStore.fetchTasks(userStore.user.id)
-})
 
 const handleSubmit = async () => {
   const newTask = {
@@ -48,7 +43,7 @@ const deleteTask = async (task) => {
   const confirmed = confirm('Are you sure you want to delete this task?')
   if (confirmed) {
     await taskStore.deleteTask(task)
-    taskStore.fetchTasks() // Refresh the task list after deletion
+    await taskStore.fetchTasks(userStore.user.id) // Wait for fetchTasks to complete
   }
 }
 
@@ -90,7 +85,7 @@ const cancelEdit = (task) => {
   <section>
     <div class="create-task">
       <div class="header">
-        <h2>Add a new Task</h2>
+        <h2>Add a Task</h2>
         <div>
           <p>Keep your life organized!</p>
           <p>Create tasks which will help you to get things done.</p>
@@ -229,7 +224,7 @@ form textarea {
 }
 
 .task-card {
-  background-color: #f4f6fc;
+  background-color: #dbeef9;
   border: none;
   border-radius: 8px;
   padding: 16px;
@@ -239,7 +234,7 @@ form textarea {
 }
 
 .task-card-done {
-  background-color: #ecfff5;
+  background-color: #D8F1E4;
   border: none;
   border-radius: 8px;
   padding: 16px;
@@ -290,6 +285,7 @@ button {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 40px;
   padding: 40px;
 }
@@ -316,7 +312,7 @@ button {
 
 .timestamp {
   font-size: 12px;
-  color: #bcbcbc;
+  color: #8d92ab;
 }
 
 .card-options {
@@ -364,3 +360,5 @@ button {
   width: 100%;
 }
 </style>
+
+
