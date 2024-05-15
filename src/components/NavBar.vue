@@ -69,12 +69,14 @@ a {
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 4px;
 }
 
 .img {
-  width: 48px;
-  height: 48px;
-  background-image: url(/src/assets/beanhead\ 3.svg);
+  width: 24px;
+  height: 24px;
+  background-image: url(/src/assets/UserCircle.svg);
+  background-size: cover;
 }
 
 .profile p {

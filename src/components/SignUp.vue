@@ -10,24 +10,27 @@ const password = ref('')
 const confirmPassword = ref('')
 const showEmailError = ref(false)
 const showSuccessPopup = ref(false)
+const errorMessage = ref('')
 
 async function handleSignUp() {
-  if (password.value === confirmPassword.value) { // Compare the values of the refs
+  if (password.value === confirmPassword.value) {
+    // Compare the values of the refs
     try {
-      const { data, error } = await userStore.signUp(email, password)
+      const { data, error } = await userStore.signUp(email.value, password.value)
       if (error) {
+        errorMessage.value = error.message
         showEmailError.value = true
       } else if (data) {
         showSuccessPopup.value = true
       }
     } catch (error) {
       console.error('Error: ', error)
+      errorMessage.value = error.message
     }
   } else {
-    console.error('Please try again, the password does not match')
+    errorMessage.value = 'Passwords do not match.'
   }
 }
-
 </script>
 
 <template>
@@ -71,6 +74,10 @@ async function handleSignUp() {
       </div>
       <button type="submit">Sign Up</button>
     </form>
+    <div v-if="showEmailError" class="error-message">
+      {{ errorMessage }}
+    </div>
+    <div v-if="showSuccessPopup" class="success-message">You did it! Check your inbox.</div>
   </div>
 </template>
 
@@ -125,5 +132,17 @@ button {
   font-size: 16px;
   width: 100%;
   height: 48px;
+}
+
+.success-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #d8f1e4;
+  width: 100%;
+  height: 30px;
+  color: darkgreen;
+  font-size: 14px;
+  border-radius: 4px;
 }
 </style>

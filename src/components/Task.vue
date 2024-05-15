@@ -8,6 +8,18 @@ const taskStore = useTaskStore()
 const newTaskTitle = ref('')
 const newTaskDescription = ref('')
 
+const today = ref('')
+
+function updateToday() {
+  today.value = new Date().toLocaleDateString("en", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+updateToday();
+
 const handleSubmit = async () => {
   const newTask = {
     title: newTaskTitle.value,
@@ -86,10 +98,11 @@ const cancelEdit = (task) => {
     <div class="create-task">
       <div class="header">
         <h2>Add a Task</h2>
-        <div>
+        <div class="intro">
           <p>Keep your life organized!</p>
           <p>Create tasks which will help you to get things done.</p>
         </div>
+        <p class="date">Today is {{ today }}</p>
       </div>
       <form @submit.prevent="handleSubmit">
         <input
@@ -206,9 +219,18 @@ h2 {
 h3 {
   color: #072ac8;
   margin: 0;
+  text-align: center;
 }
 
-.header p {
+.intro {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 4px;
+}
+
+.date {
+  font-weight: 600;
   text-align: center;
 }
 

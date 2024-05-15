@@ -1,32 +1,33 @@
 <script setup>
-import NavBar from '../components/NavBar.vue';
+import { ref } from 'vue';
+import NavBar from '../components/NavBar.vue'
+import ProfileDefault from '../components/ProfileDefault.vue'
+import ProfileEdit from '../components/ProfileEdit.vue'
 
-import { ref, onMounted } from 'vue';
-import { useUserStore } from '../stores/user.js';
+// Reactive state to track if the profile is being edited
+const isEditing = ref(false);
 
-const userStore = useUserStore();
-const userProfile = ref(null);
-
-onMounted(async () => {
-  if (userStore.user) {
-    await userStore.fetchUserProfile(userStore.user.email);
-    userProfile.value = userStore.profile;
-  }
-});
+// Function to toggle the editing state
+const toggleEdit = () => {
+  isEditing.value = !isEditing.value;
+};
 </script>
 
 <template>
-  <section>
-    <NavBar></NavBar>
-    <div v-if="userProfile">
-      <p>User Email: {{ userProfile.email }}</p>
-      <!-- Display other profile information as needed -->
-    </div>
-    <div v-else>
-      <p>Loading...</p>
-    </div>
-  </section>
-</template>
+    <section>
+      <NavBar></NavBar>
+      <article v-if="!isEditing">
+        <ProfileDefault @edit="toggleEdit"></ProfileDefault>
+      </article>
+      <article v-else>
+      <ProfileEdit @cancel="toggleEdit" @save="toggleEdit"></ProfileEdit>
+    </article>
+    </section>
+  </template>
 
 <style scoped>
+
 </style>
+
+
+

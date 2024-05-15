@@ -12,7 +12,9 @@ Day 4: added option to delete, mark as complete, edit, save the edit - a task
 
 Day 5: fixed issue with password and confirming password. Add alert if user already signed up with that email - tried to assigned own user tasks but failed
 
-Day 6: fixed issue to assign task per user, also fixed issue delete card after refresh
+Day 6: fixed issue to assign task per user, also fixed issue delete card after refresh, responsive, added profile page
+
+Day 7: 
 
 
 ====
