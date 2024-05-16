@@ -13,39 +13,42 @@ onMounted(async () => {
 })
 
 const emit = defineEmits(['edit'])
-
 </script>
 
 <template>
   <section class="profile-default">
     <div v-if="userProfile" class="profile">
-        <h3>Profile</h3>
+      <h3>Profile</h3>
       <div class="pic">
-        <div class="img">
+        <div class="img" v-if="userProfile.avatarUrl">
           <img :src="userProfile.avatarUrl" alt="User Profile" />
         </div>
-
+          <div class="no-img" v-else></div>
       </div>
       <div class="userdata">
         <div class="username">
-            <p class="title">Username</p>
-            <p class="data"> {{ userProfile.username }}</p>
+          <p class="title">Username</p>
+          <p class="data" v-if="userProfile.username">{{ userProfile.username }}</p>
+          <p class="no-data" v-else><i>-</i></p>
         </div>
         <div class="name">
-            <p class="title">Name</p>
-            <p class="data">{{ userProfile.name }}</p>
+          <p class="title">Name</p>
+          <p class="data" v-if="userProfile.name">{{ userProfile.name }}</p>
+          <p class="no-data" v-else><i>-</i></p>
         </div>
         <div class="email">
-            <p class="title">Email</p>
-            <p class="data">{{ userProfile.email }}</p>
+          <p class="title">Email</p>
+          <p class="data">{{ userProfile.email }}</p>
         </div>
         <div class="website">
-            <p class="title">Website</p>
-            <p class="data"><a href="{{ userProfile.website }}">{{ userProfile.website }}</a></p>
+          <p class="title">Website</p>
+          <p class="data" v-if="userProfile.website">
+            <a :href="userProfile.website" target="_blank">{{ userProfile.website }}</a>
+          </p>
+          <p class="no-data" v-else><i>-</i></p>
         </div>
-
       </div>
-      <button @click="$emit('edit')">Edit Profile</button>
+      <button @click="emit('edit')">Edit Profile</button>
     </div>
     <div v-else class="nothing">
       <p>Nothing to show in your Profile page...</p>
@@ -57,7 +60,6 @@ const emit = defineEmits(['edit'])
 </template>
 
 <style scoped>
-
 .profile-default {
   display: flex;
   flex-direction: column;
@@ -82,39 +84,55 @@ h3 {
 }
 
 p {
-    margin: 0;
-    color: #072ac8;
+  margin: 0;
+  color: #072ac8;
+}
+
+.no-data {
+  font-size: 14px;
+  color: #a1a5b9;
 }
 
 .img {
   width: 120px;
   height: 120px;
+  border-radius: 100px;
+  border: solid 8px #ffffff;
+}
+
+.no-img {
+  background-image: url(/src/assets/110Team.png);
+  background-size: cover;
+  width: 120px;
+  height: 120px;
+  border-radius: 100px;
+  border: solid 8px #ffffff;
 }
 
 .userdata {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
 }
 
 .userdata div {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .title {
-    font-weight: 600;
-    font-size: 12px;
-    color: #8d92ab;
+  font-weight: 600;
+  font-size: 12px;
+  color: #8d92ab;
 }
 
 a {
-    text-decoration: none;
-    color: #072ac8;
+  text-decoration: none;
+  color: #072ac8;
 }
 
 button {

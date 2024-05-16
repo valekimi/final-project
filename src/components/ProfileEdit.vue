@@ -32,7 +32,7 @@ const cancelEdit = () => {
 //Codice nuovo:
 
 const handleFileChange = (event) => {
-  const file = event.target.files[0]
+  const file = event.target.files //[0] questo era giusto dopo files
   // Assuming you have a method in your user store to handle avatar upload
   userStore.uploadAvatar(file).then((url) => {
     avatarUrl.value = url
@@ -48,11 +48,9 @@ const handleFileChange = (event) => {
     <div class="profile">
       <h3>Update Profile</h3>
       <form @submit.prevent="handleProfileUpdate" class="userdata">
-        <div class="avatar">
+        <div class="data">
           <label for="avatarUrl">Avatar</label>
-          <img :src="avatarUrl" alt="User Avatar" />
-          <!-- <button type="button" @click="" class="update">Update</button> -->
-          <input type="file" accept="image/*" @change="handleFileChange" />
+          <input id="avatar" type="file" accept="image/*" @change="handleFileChange" />
         </div>
         <div class="data">
           <label for="username">Username</label>
@@ -141,6 +139,13 @@ input {
   padding: 0 16px;
 }
 
+#avatar {
+    background-color: transparent;
+    padding: 0;
+    padding-top: 8px;
+}
+
+
 .actions {
   display: flex;
   gap: 12px;
@@ -177,4 +182,5 @@ input {
   width: 100%;
   height: 30px;
 }
+
 </style>

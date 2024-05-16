@@ -63,7 +63,7 @@ export const useUserStore = defineStore('user', {
       if (error) {
         console.error('Error creating user profile:', error)
       }
-      this.profile = data[0]
+      this.profile = data
     },
 
     async fetchUserProfile(userId) {
