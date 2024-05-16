@@ -43,7 +43,7 @@ const emit = defineEmits(['edit'])
         <div class="website">
           <p class="title">Website</p>
           <p class="data" v-if="userProfile.website">
-            <a :href="userProfile.website" target="_blank">{{ userProfile.website }}</a>
+            <a :href="userProfile.website">{{ userProfile.website }}</a>
           </p>
           <p class="no-data" v-else><i>-</i></p>
         </div>
