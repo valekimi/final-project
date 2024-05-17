@@ -24,6 +24,7 @@ section {
 }
 
 img {
+  padding-top: 40px;
   width: 25%;
 }
 

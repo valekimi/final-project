@@ -115,6 +115,16 @@ label {
   height: 120px;
 }
 
+.file-upload-button {
+  border: 1px solid #d1edff;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #514d67;
+  font-size: 12px;
+  height: 30px;
+  padding: 0 16px;
+}
+
 .userdata {
   display: flex;
   flex-direction: column;
