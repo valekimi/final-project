@@ -103,6 +103,7 @@ label {
 .avatar {
   width: 120px;
   height: 120px;
+  object-fit: cover;
   border-radius: 100px;
   border: solid 8px #ffffff;
 }

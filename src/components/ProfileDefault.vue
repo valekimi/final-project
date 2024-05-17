@@ -12,6 +12,13 @@ onMounted(async () => {
   }
 })
 
+const formatWebsiteUrl = (url) => {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return `http://${url}`
+  }
+  return url
+}
+
 const emit = defineEmits(['edit'])
 </script>
 
@@ -44,7 +51,7 @@ const emit = defineEmits(['edit'])
         <div class="website">
           <p class="title">Website</p>
           <p class="data" v-if="userProfile.website">
-            <a :href="userProfile.website">{{ userProfile.website }}</a>
+            <a :href="formatWebsiteUrl(userProfile.website)" target="_blank">{{ userProfile.website }}</a>
           </p>
           <p class="no-data" v-else><i>-</i></p>
         </div>
@@ -95,13 +102,18 @@ p {
 }
 
 .img {
-  border-radius: 100px;
-  border: solid 8px #ffffff;
+  width: 100%;
+  height: 136px;
+  display: flex;
+  justify-content: center;
 }
 
 .avatar {
   width: 120px;
   height: 120px;
+  object-fit: cover;
+  border-radius: 100px;
+  border: solid 8px #ffffff;
 }
 
 .userdata {
