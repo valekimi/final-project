@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useUserStore } from '../stores/user.js'
 
 const userStore = useUserStore()
-const avatarUrl = ref(userStore.profile?.avatarUrl || '')
+const avatarUrl = ref(userStore.profile?.avatar_url || '')
 const name = ref(userStore.profile?.name || '')
 const username = ref(userStore.profile?.username || '')
 const website = ref(userStore.profile?.website || '')
@@ -28,19 +28,6 @@ const handleProfileUpdate = async () => {
 const cancelEdit = () => {
   emit('cancel')
 }
-
-//Codice nuovo:
-
-const handleFileChange = (event) => {
-  const file = event.target.files //[0] questo era giusto dopo files
-  // Assuming you have a method in your user store to handle avatar upload
-  userStore.uploadAvatar(file).then((url) => {
-    avatarUrl.value = url
-  }).catch((error) => {
-    console.error('Error uploading avatar:', error)
-  })
-}
-
 </script>
 
 <template>
@@ -48,10 +35,13 @@ const handleFileChange = (event) => {
     <div class="profile">
       <h3>Update Profile</h3>
       <form @submit.prevent="handleProfileUpdate" class="userdata">
-        <div class="data">
-          <label for="avatarUrl">Avatar</label>
-          <input id="avatar" type="file" accept="image/*" @change="handleFileChange" />
-        </div>
+          <div class="img">
+            <img :src="avatarUrl || '/src/assets/110Team.png'" alt="User Avatar" class="avatar" />
+          </div>
+          <div class="data">
+            <label for="avatarUrl">Avatar</label>
+            <input v-model="avatarUrl" type="text" id="avatarUrl" placeholder="Add the image url" />
+          </div>
         <div class="data">
           <label for="username">Username</label>
           <input v-model="username" type="text" id="username" />
@@ -103,26 +93,18 @@ label {
   color: #8d92ab;
 }
 
-.avatar {
+.img {
+  width: 100%;
+  height: 136px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
+  justify-content: center;
 }
 
-.avatar img {
+.avatar {
   width: 120px;
   height: 120px;
-}
-
-.file-upload-button {
-  border: 1px solid #d1edff;
-  border-radius: 4px;
-  background-color: #ffffff;
-  color: #514d67;
-  font-size: 12px;
-  height: 30px;
-  padding: 0 16px;
+  border-radius: 100px;
+  border: solid 8px #ffffff;
 }
 
 .userdata {
@@ -148,13 +130,6 @@ input {
   height: 40px;
   padding: 0 16px;
 }
-
-#avatar {
-    background-color: transparent;
-    padding: 0;
-    padding-top: 8px;
-}
-
 
 .actions {
   display: flex;
@@ -192,5 +167,4 @@ input {
   width: 100%;
   height: 30px;
 }
-
 </style>

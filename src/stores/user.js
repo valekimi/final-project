@@ -6,7 +6,7 @@ import router from '@/router'
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
-    profile: null,
+    profile: null
   }),
 
   actions: {
@@ -79,7 +79,7 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateUserProfile(profileUpdates) {
-      console.log(this.user.id);
+      console.log(this.user.id)
       const { data, error } = await supabase
         .from('profiles')
         .update(profileUpdates)

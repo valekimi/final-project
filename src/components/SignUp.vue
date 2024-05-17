@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user.js'
+import { storeToRefs } from 'pinia';
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -11,16 +12,14 @@ const confirmPassword = ref('')
 const showEmailError = ref(false)
 const showSuccessPopup = ref(false)
 const errorMessage = ref('')
+const { user } = storeToRefs(userStore)
 
 async function handleSignUp() {
   if (password.value === confirmPassword.value) {
     // Compare the values of the refs
     try {
-      const { data, error } = await userStore.signUp(email.value, password.value)
-      if (error) {
-        errorMessage.value = error.message
-        showEmailError.value = true
-      } else if (data) {
+      await userStore.signUp(email.value, password.value)
+      if (user.value) {
         showSuccessPopup.value = true
       }
     } catch (error) {

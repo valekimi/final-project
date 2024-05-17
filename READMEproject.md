@@ -14,7 +14,31 @@ Day 5: fixed issue with password and confirming password. Add alert if user alre
 
 Day 6: fixed issue to assign task per user, also fixed issue delete card after refresh, responsive, added profile page
 
-Day 7: 
+Day 7: Connected the profile 
+
+
+Auth
+===
+Sign Up
+===
+Sign In
+===
+Dashboard
+===
+Create Task
+===
+Edit Task
+===
+Mark Complete
+===
+Delete task
+===
+Profile
+===
+Edit Profile
+===
+Log Out
+
 
 
 ====
@@ -809,7 +833,7 @@ a {
 ====
 
 
-User.js  14 May - Add task, edit, delete, merk complete, assigned task per user
+User.js  17 May - Add, edit, delete, complete, assigned task per user, profile
 ====
 // /store/user.js
 import { defineStore } from 'pinia'
@@ -818,13 +842,18 @@ import router from '@/router'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null
+    user: null,
+    profile: null,
   }),
 
   actions: {
     async fetchUser() {
-      const { data } = await supabase.auth.getUser()
+      const { data, error } = await supabase.auth.getUser()
+      if (error) console.error('Fetch user error:', error)
       this.user = data.user
+      if (this.user) {
+        await this.fetchUserProfile(this.user.id)
+      }
     },
 
     async signUp(email, password) {
@@ -833,12 +862,11 @@ export const useUserStore = defineStore('user', {
         password: password
       })
       if (error) {
-        alert("This account already exist")
         throw error
       }
-      if (data) {
-        this.user = data.user
-      }
+      this.user = data.user
+      console.log('User signed up:', this.user)
+      await this.createUserProfile(data.user.id, email)
       return { data, error } // Return the data and error for checking in the component
     },
 
@@ -849,6 +877,7 @@ export const useUserStore = defineStore('user', {
       })
       if (error) throw error
       this.user = data.user
+      await this.fetchUserProfile(data.user.id)
     },
 
     async logOut() {
@@ -856,11 +885,46 @@ export const useUserStore = defineStore('user', {
       if (error) {
         console.error('Log out error:', error.message)
       } else {
-        // Qui puoi reindirizzare l'utente o fare altre pulizie post-logout
+        // Redirect user or other post-logout cleanup
         console.log('Logout Sucessful')
-        this.user = null;
+        this.user = null
+        this.profile = null
         router.push('/auth')
       }
+    },
+
+    async createUserProfile(userId, email) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({ user_id: userId, email: email })
+      if (error) {
+        console.error('Error creating user profile:', error)
+      }
+      this.profile = data
+    },
+
+    async fetchUserProfile(userId) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+      if (error) {
+        console.error('Error fetching user profile:', error)
+      }
+      this.profile = data
+    },
+
+    async updateUserProfile(profileUpdates) {
+      console.log(this.user.id);
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(profileUpdates)
+        .eq('user_id', this.user.id)
+      if (error) {
+        console.error('Error updating profile:', error)
+      }
+      this.profile = data
     },
 
     persist: {
@@ -880,6 +944,388 @@ export const useUserStore = defineStore('user', {
   }
 })
 ====
+
+ProfileDefault.vue: 17 May
+====
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useUserStore } from '../stores/user.js'
+
+const userStore = useUserStore()
+const userProfile = ref(null)
+
+onMounted(async () => {
+  if (userStore.user) {
+    await userStore.fetchUserProfile(userStore.user.id)
+    userProfile.value = userStore.profile
+  }
+})
+
+const emit = defineEmits(['edit'])
+</script>
+
+<template>
+  <section class="profile-default">
+    <div v-if="userProfile" class="profile">
+      <h3>Profile</h3>
+      <div class="pic">
+        <div class="img" v-if="userProfile.avatar_url">
+          <img :src="userProfile.avatar_url" alt="User Profile" />
+        </div>
+          <div class="no-img" v-else></div>
+      </div>
+      <div class="userdata">
+        <div class="username">
+          <p class="title">Username</p>
+          <p class="data" v-if="userProfile.username">{{ userProfile.username }}</p>
+          <p class="no-data" v-else><i>-</i></p>
+        </div>
+        <div class="name">
+          <p class="title">Name</p>
+          <p class="data" v-if="userProfile.name">{{ userProfile.name }}</p>
+          <p class="no-data" v-else><i>-</i></p>
+        </div>
+        <div class="email">
+          <p class="title">Email</p>
+          <p class="data">{{ userProfile.email }}</p>
+        </div>
+        <div class="website">
+          <p class="title">Website</p>
+          <p class="data" v-if="userProfile.website">
+            <a :href="userProfile.website">{{ userProfile.website }}</a>
+          </p>
+          <p class="no-data" v-else><i>-</i></p>
+        </div>
+      </div>
+      <button @click="emit('edit')">Edit Profile</button>
+    </div>
+    <div v-else class="nothing">
+      <p>Nothing to show in your Profile page...</p>
+      <div>
+        <img src="/src/assets/125Team.png" alt="Why!?" />
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.profile-default {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+}
+
+.profile {
+  width: 342px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  background-color: #f4f6fc;
+  border-radius: 8px;
+  padding: 32px;
+}
+
+h3 {
+  color: #072ac8;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  color: #072ac8;
+}
+
+.no-data {
+  font-size: 14px;
+  color: #a1a5b9;
+}
+
+.img {
+  width: 120px;
+  height: 120px;
+  border-radius: 100px;
+  border: solid 8px #ffffff;
+}
+
+.no-img {
+  background-image: url(/src/assets/110Team.png);
+  background-size: cover;
+  width: 120px;
+  height: 120px;
+  border-radius: 100px;
+  border: solid 8px #ffffff;
+}
+
+.userdata {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+}
+
+.userdata div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 12px;
+  color: #8d92ab;
+}
+
+a {
+  text-decoration: none;
+  color: #072ac8;
+}
+
+button {
+  border: 1px solid #d1edff;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #514d67;
+  font-size: 12px;
+  height: 30px;
+  padding: 0 16px;
+}
+
+.nothing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50vh;
+}
+
+.nothing img {
+  width: 240px;
+}
+</style>
+====
+
+
+ProfileEdit.vue: 17 May
+====
+<script setup>
+import { ref } from 'vue'
+import { useUserStore } from '../stores/user.js'
+
+const userStore = useUserStore()
+const avatarUrl = ref(userStore.profile?.avatar_url || '')
+const name = ref(userStore.profile?.name || '')
+const username = ref(userStore.profile?.username || '')
+const website = ref(userStore.profile?.website || '')
+
+const emit = defineEmits(['cancel', 'save'])
+
+const handleProfileUpdate = async () => {
+  try {
+    const updates = {
+      avatar_url: avatarUrl.value,
+      name: name.value,
+      username: username.value,
+      website: website.value
+    }
+    await userStore.updateUserProfile(updates)
+    emit('save')
+  } catch (error) {
+    console.error('Error updating profile:', error)
+  }
+}
+
+const cancelEdit = () => {
+  emit('cancel')
+}
+
+//Codice nuovo:
+
+const handleFileChange = (event) => {
+  const file = event.target.files //[0] questo era giusto dopo files
+  // Assuming you have a method in your user store to handle avatar upload
+  userStore
+    .uploadAvatar(file)
+    .then((url) => {
+      avatarUrl.value = url
+    })
+    .catch((error) => {
+      console.error('Error uploading avatar:', error)
+    })
+}
+</script>
+
+<template>
+  <section class="profile-edit">
+    <div class="profile">
+      <h3>Update Profile</h3>
+      <form @submit.prevent="handleProfileUpdate" class="userdata">
+        <div class="data">
+          <label for="avatarUrl">Avatar</label>
+          <div class="picture">
+            <div class="image"></div>
+            <input id="avatar" type="file" accept="image/*" @change="handleFileChange" />
+            <label class="choose" for="avatar">Choose File</label>
+          </div>
+        </div>
+        <div class="data">
+          <label for="username">Username</label>
+          <input v-model="username" type="text" id="username" />
+        </div>
+        <div class="data">
+          <label for="name">Name</label>
+          <input v-model="name" type="text" id="name" />
+        </div>
+        <div class="data">
+          <label for="website">Website</label>
+          <input v-model="website" type="text" id="website" />
+        </div>
+        <div class="actions">
+          <button type="button" @click="cancelEdit" class="cancel">Cancel</button>
+          <button type="submit" class="save">Save</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.profile-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+}
+
+.profile {
+  width: 342px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  background-color: #f4f6fc;
+  border-radius: 8px;
+  padding: 32px;
+}
+
+h3 {
+  color: #072ac8;
+  margin: 0;
+}
+
+label {
+  font-weight: 600;
+  font-size: 12px;
+  color: #8d92ab;
+}
+
+.picture {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
+.avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.image {
+  width: 120px;
+  height: 120px;
+}
+
+.choose {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1edff;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #514d67;
+  font-size: 12px;
+  height: 30px;
+  padding: 0 12px;
+}
+
+.userdata {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+}
+
+.data {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+input {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+}
+
+#avatar {
+  display: none;
+  background-color: transparent;
+  padding: 0;
+  padding-top: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.cancel {
+  border: solid 1px #072ac8;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #072ac8;
+  font-weight: 500;
+  font-size: 14px;
+  width: 100%;
+  height: 30px;
+}
+
+.update {
+  border: 1px solid #d1edff;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #514d67;
+  font-size: 12px;
+  height: 30px;
+  padding: 0 16px;
+}
+
+.save {
+  border: none;
+  border-radius: 4px;
+  background-color: #072ac8;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+  width: 100%;
+  height: 30px;
+}
+</style>
+====
+
+
 
 App.vue  14 May - Add task, edit, delete, merk complete, assigned task per user
 ====

@@ -15,15 +15,16 @@ onMounted(async () => {
 const emit = defineEmits(['edit'])
 </script>
 
+
+
 <template>
   <section class="profile-default">
     <div v-if="userProfile" class="profile">
       <h3>Profile</h3>
       <div class="pic">
-        <div class="img" v-if="userProfile.avatarUrl">
-          <img :src="userProfile.avatarUrl" alt="User Profile" />
+        <div class="img">
+          <img :src="userProfile.avatar_url || '/src/assets/110Team.png'" alt="User Profile" class="avatar" />
         </div>
-          <div class="no-img" v-else></div>
       </div>
       <div class="userdata">
         <div class="username">
@@ -94,19 +95,13 @@ p {
 }
 
 .img {
-  width: 120px;
-  height: 120px;
   border-radius: 100px;
   border: solid 8px #ffffff;
 }
 
-.no-img {
-  background-image: url(/src/assets/110Team.png);
-  background-size: cover;
+.avatar {
   width: 120px;
   height: 120px;
-  border-radius: 100px;
-  border: solid 8px #ffffff;
 }
 
 .userdata {
