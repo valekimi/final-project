@@ -1,6 +1,23 @@
 # PROJECT - Task Manager
 
-Technologies involved: VS Code / Vue.js 3 with Composition API / Vite / Pinia / EsLint / Prettier / Router / Supabase 2 / HTML / CSS / Javascript / Git / Trello / GitHub / Chat GPT / Netlify / Zoom / Slack
+## Technologies involved:
+
+VS Code / Vue.js 3 with Composition API / Vite / Pinia / EsLint / Prettier / Router / Supabase 2 / HTML / CSS / Javascript / Git / Trello / GitHub / Chat GPT / Netlify / Zoom / Slack
+
+## live Website Link:
+
+https://kimi-taskit.netlify.app/
+
+## Content
+
+- Sign Up - Sign In - Log Out
+- Task Dashboard - Add Task - Edit Task - Mark Complete - Delete task
+- Profile - Edit Profile
+
+### Credits
+
+- Jarko Garrido - Prof. Bootcamp Front End
+- Ironhack Barcelona
 
 ===
 
