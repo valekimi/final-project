@@ -1,10 +1,10 @@
-#PROJECT - Task Manager
+# PROJECT - Task Manager
 
 Technologies involved: VS Code / Vue.js 3 with Composition API / Vite / Pinia / EsLint / Prettier / Router / Supabase 2 / HTML / CSS / Javascript / Git / Trello / GitHub / Chat GPT / Netlify / Zoom / Slack
 
 ===
 
-###App.vue:
+### App.vue:
 
 All the website will be displayed here through a ROUTER VIEW which allows the component to dynamically load based on the route.
 Imported userStore and taskStore = instances in PINIA stores.
@@ -12,15 +12,13 @@ ON MOUNTED HOOK is asynchronous to handle async operations like fetching data.
 FETCH user data using AWAIT to wait the fetch operation completition.
 If user data is available and tasks are fetched, redirects to the home path '/'.
 
--
 
-###Auth.vue:
+### Auth.vue:
 
 First view that the user will see when landing. Here the user see one of the 2 components: Sign In it is already registered, or Sign up if has already an account. This functionality is possible thanks to a toggle function using "v-if" and "v-else".
 
--
 
-###SignIn.vue:
+### SignIn.vue:
 
 Imported REF to create reactive variables.
 REACTIVE VARIABLES: email and password that the user will input through the form.
@@ -29,9 +27,8 @@ Email and Password input fields have "v-model" binding to the reactive variables
 Submit button to trigger the sign-in process.
 On successful sign-in, fetches the user's tasks and navigates to the Dashboard.
 
--
 
-###SignUp.vue:
+### SignUp.vue:
 
 Imported REF to create reactive variables.
 REACTIVE VARIABLES: email, password, and confirmPassword, that the user will input through the form.
@@ -42,16 +39,14 @@ Compares password and confirmPassword values. If passwords match, tries to sign 
 On successful sign-up, sets showSuccessPopup to true which inform user to check the inbox and confirm email.
 If passwords do not match, sets errorMessage to 'Passwords do not match.'
 
--
 
-###Dashboard.vue:
+### Dashboard.vue:
 
 Main view where the user will manage the tasks.
 Imported NavBar and Task components.
 
--
 
-###Task.vue:
+### Task.vue:
 
 In this component user will be able to manage the tasks.
 The component is divided in 2 parts: Create tasks / Existing tasks
