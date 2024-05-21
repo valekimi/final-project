@@ -135,3 +135,22 @@ A button that calls the logOut method from userStore when clicked, handles user 
 - Day 7: Connected the profile with supabase to upload new user information 
 - Day 8: Fixed small issue around the website: Profile avatar_url, Success alert, etc... Deploy failure.
 - Day 9: Presentation & Readme
+
+====================================
+
+### Backlog:
+
+With more time i would have:
+- make a proper responsive website
+- show pages as active when open
+- made everything pixel perfect
+- consider different ways to implement the features
+- delete profile option
+- forgot password
+- add timer feature
+
+====================================
+
+### The End
+
+This is my very first website designed and coded, and was a great exercise. If you have any questions or suggestions, feel free to reach out to me. Thanks for reading, Valekimi 🙆🏻‍♀️
