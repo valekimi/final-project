@@ -49,7 +49,7 @@ Imported NavBar and Task components.
 ### Task.vue:
 
 In this component user will be able to manage the tasks.
-The component is divided in 2 parts: Create tasks / Existing tasks
+The component is divided in 2 parts: Create tasks / Task List
 
 Create Task:
 Imported REF to create reactive variables.
@@ -58,23 +58,32 @@ Input fields for task title and description with "v-model" binding to reactive v
 Form has "@submit.prevent" to call the handleSubmit function which creates a new task object with title, description, and user ID. Calls taskStore.addTask(newTask) to add the task to the store. Calls taskStore.fetchTasks(userStore.user.id) to refresh the task list.
 Submit button to add the task.
 
-Existing tasks:
+Task List:
+computed Properties: loops of filteredTasks to display tasks, based on user ID, that are not complete or completed.
+Similar structure for the options to edit, delete, or move the task back to to-do.
+
+- Edit Task:
+function toggleEditMode: toggles the edit mode for a task and sets temporary variables for the title and description.
+
+- Save changes:
+function saveChanges: saves the edited task title and description, updates the task in the store, and exits edit mode.
+
+- Cancel Edit:
+function cancelEdit: Exits edit mode without saving changes.
+
+- Mark Complete / Back to-do:
+function markComplete: marks a task as complete, updates it in the store, and refreshes the task list.
+function backToTodo: marks a completed task as incomplete, updates it in the store, and refreshes the task list.
+
+- Delete task:
+function deleteTask: asks for confirmation, then deletes the specified task and refreshes the task list.
 
 
+### ProdileView.vue
 
-Create Task
-===
-Edit Task
-===
-Mark Complete
-===
-Delete task
-===
-Profile
-===
-Edit Profile
-===
-Log Out
+- Profile
+- Edit Profile
+- Log Out
 
 =========================
 
