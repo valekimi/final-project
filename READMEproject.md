@@ -107,7 +107,7 @@ A button that calls the logOut method from userStore when clicked, handles user 
 
 =========================
 
-##DAILY PROGRESS:
+## DAILY PROGRESS:
 
 - Day 1: understand project structure, insert first HTML and CSS in Auth view, creating component sign up and sign in
 - Day 2: connecting components with view and add logic, implement the log out funcionality connected with sign in and sign up
