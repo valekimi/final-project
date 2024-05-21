@@ -81,9 +81,29 @@ function deleteTask: asks for confirmation, then deletes the specified task and 
 
 ### ProdileView.vue
 
-- Profile
-- Edit Profile
-- Log Out
+Imported components: NavBar, Profile Default, Profile Edit.
+Same as in Auth. If the user has a profile, with show the profile information, otherwise will throw an alternative message. This functionality is possible thanks to a toggle function using "v-if" and "v-else". The profile information is displayed if userProfile is not null.
+The @edit event on ProfileDefault triggers the function to switch to edit with function toggleEdit.
+
+### ProfileDefault.vue
+
+onMounted function checks if a user is logged in (userStore.user).
+If a user is logged in, it fetches the user's profile data using userStore.fetchUserProfile(userStore.user.id).
+The fetched profile data is then stored in the userProfile variable.
+Emit is defined to emit an edit event. It is used when user wants to edit the profile.
+
+### ProfileEdit.vue
+
+Emit is defined to emit cancel and save events. 
+Function toggleEdit switches the state from viewing to editing the profile.
+Input elements bound to avatarUrl, username, name, and website using v-model.
+handleProfileUpdate Function prepares the updated data and calls userStore.updateUserProfile to update the profile.
+
+### NavBar.vue
+
+It contains an heading with a router-link to the home page (/). This makes the "Task-it" clickable, navigating the user back to the homepage.
+A profile section with a router-link to the profile page (/profile). This allows users to click and navigate to their profile page.
+A button that calls the logOut method from userStore when clicked, handles user session termination and any necessary clean-up actions.
 
 =========================
 
